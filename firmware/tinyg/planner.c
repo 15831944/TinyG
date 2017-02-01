@@ -55,6 +55,7 @@
 #include "config.h"
 #include "canonical_machine.h"
 #include "plan_arc.h"
+#include "plan_line.h"
 #include "planner.h"
 #include "kinematics.h"
 #include "stepper.h"
@@ -213,6 +214,39 @@ void mp_queue_command(void(*cm_exec)(float[], float[]), float *value, float *fla
 		bf->flag_vector[axis] = flag[axis];
 	}
 	mp_commit_write_buffer(MOVE_TYPE_COMMAND);			// must be final operation before exit
+}
+void mp_queue_spindle(void(*cm_exec)(float[], float[]), float *value, float *flag)
+{
+	mpBuf_t *bf;
+
+	// Never supposed to fail as buffer availability was checked upstream in the controller
+	if ((bf = mp_get_write_buffer()) == NULL) {
+		cm_hard_alarm(STAT_BUFFER_FULL_FATAL);
+		return;
+	}
+
+	bf->move_type = MOVE_TYPE_SPINDLE_SPEED;
+	bf->bf_func = _exec_command;						// callback to planner queue exec function
+	bf->cm_func = cm_exec;								// callback to canonical machine exec function
+	bf->entry_vmax = 99999.0;
+	bf->exit_vmax = 99999.0;
+	bf->cruise_vmax = 99999.0;
+	bf->delta_vmax = 0.0;
+	bf->entry_velocity = 99999.0;
+	bf->exit_velocity = 99999.0;
+	bf->cruise_velocity = 99999.0;
+	bf->length = 0.0;
+	bf->replannable = true;
+
+	for (uint8_t axis = AXIS_X; axis < AXES; axis++) {
+		bf->value_vector[axis] = value[axis];
+		bf->flag_vector[axis] = flag[axis];
+	}
+	
+	//uint8_t mr_flag = false;
+	//_plan_block_list(bf, &mr_flag);
+	
+	mp_commit_write_buffer(MOVE_TYPE_SPINDLE_SPEED);			// must be final operation before exit
 }
 
 static stat_t _exec_command(mpBuf_t *bf)

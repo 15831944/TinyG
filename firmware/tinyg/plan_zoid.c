@@ -137,6 +137,17 @@ void mp_calculate_trapezoid(mpBuf_t *bf)
 	// you can get given the delta_vmax (maximum velocity slew) supportable.
 
 	bf->naiive_move_time = 2 * bf->length / (bf->entry_velocity + bf->exit_velocity); // average
+	
+	// #PAT if movetype is for spindle
+	// cruise velocity = entry_velovity = exit_veocity
+	// 
+	if (bf->move_type == MOVE_TYPE_SPINDLE_SPEED) {
+		bf->cruise_velocity = bf->entry_velocity;
+		bf->exit_velocity = bf->entry_velocity;
+		
+		// we are not* violating the jerk value
+		return;
+	}
 
 	if (bf->naiive_move_time < MIN_SEGMENT_TIME_PLUS_MARGIN) {
 		bf->cruise_velocity = bf->length / MIN_SEGMENT_TIME_PLUS_MARGIN;

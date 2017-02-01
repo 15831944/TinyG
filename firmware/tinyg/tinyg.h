@@ -45,7 +45,7 @@
 /****** REVISIONS ******/
 
 #ifndef TINYG_FIRMWARE_BUILD
-#define TINYG_FIRMWARE_BUILD        440.20	// arc test
+#define TINYG_FIRMWARE_BUILD        440.21	// no pause on S commands (new FW version will delete config)
 
 #endif
 #define TINYG_FIRMWARE_VERSION		0.97					// firmware major version
