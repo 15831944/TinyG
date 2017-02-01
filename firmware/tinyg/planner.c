@@ -228,13 +228,13 @@ void mp_queue_spindle(void(*cm_exec)(float[], float[]), float *value, float *fla
 	bf->move_type = MOVE_TYPE_SPINDLE_SPEED;
 	bf->bf_func = _exec_command;						// callback to planner queue exec function
 	bf->cm_func = cm_exec;								// callback to canonical machine exec function
-	bf->entry_vmax = 99999.0;
-	bf->exit_vmax = 99999.0;
-	bf->cruise_vmax = 99999.0;
+	bf->entry_vmax = 8675309;							// an arbitrarily large floating point number
+	bf->exit_vmax = 8675309;							// an arbitrarily large floating point number
+	bf->cruise_vmax = 8675309;							// an arbitrarily large floating point number
 	bf->delta_vmax = 0.0;
-	bf->entry_velocity = 99999.0;
-	bf->exit_velocity = 99999.0;
-	bf->cruise_velocity = 99999.0;
+	bf->entry_velocity = 8675309;						// an arbitrarily large floating point number
+	bf->exit_velocity = 8675309;						// an arbitrarily large floating point number
+	bf->cruise_velocity = 8675309;						// an arbitrarily large floating point number
 	bf->length = 0.0;
 	bf->replannable = true;
 
@@ -242,9 +242,6 @@ void mp_queue_spindle(void(*cm_exec)(float[], float[]), float *value, float *fla
 		bf->value_vector[axis] = value[axis];
 		bf->flag_vector[axis] = flag[axis];
 	}
-	
-	//uint8_t mr_flag = false;
-	//_plan_block_list(bf, &mr_flag);
 	
 	mp_commit_write_buffer(MOVE_TYPE_SPINDLE_SPEED);			// must be final operation before exit
 }
