@@ -238,7 +238,13 @@ stat_t mp_aline(GCodeState_t *gm_in)
 		exact_stop = 8675309;								// an arbitrarily large floating point number
 	}
 	bf->cruise_vmax = bf->length / bf->gm.move_time;		// target velocity requested
-	junction_velocity = _get_junction_vmax(bf->pv->unit, bf->unit);
+	if ( (bf->pv->move_type == MOVE_TYPE_SPINDLE_SPEED) &&
+		(bf->pv->pv->buffer_state == MP_BUFFER_QUEUED) ) { // #PAT: must be queued? or just not MP_BUFFER_EMPTY?
+			junction_velocity = _get_junction_vmax(bf->pv->pv->unit, bf->unit);
+		}
+	else {
+		junction_velocity = _get_junction_vmax(bf->pv->unit, bf->unit);
+	}
 	bf->entry_vmax = min3(bf->cruise_vmax, junction_velocity, exact_stop);
 	bf->delta_vmax = mp_get_target_velocity(0, bf->length, bf);
 	bf->exit_vmax = min3(bf->cruise_vmax, (bf->entry_vmax + bf->delta_vmax), exact_stop);
